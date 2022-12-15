@@ -1,42 +1,29 @@
-from flask import Flask, redirect, url_for, request, render_template, jsonify
+from flask import Flask, redirect, url_for, request
 from diseaseDetection import detection
 from labelsList import labels
+import py_eureka_client.eureka_client as eureka_client
 
 app = Flask(__name__)
 
 labelList = "model/labels.txt"
+rest_port = 5000
+eureka_client.init(eureka_server="http://localhost:8761",
+                   app_name="ml-service",
+                   instance_port=rest_port)
 
 
-
-
-
-@app.route('/index', methods=["GET"])
-def test():
+@app.route('/labels', methods=["GET"])
+def getAllLabels():
     return labels(labelList)
 
 
-@app.route('/login', methods=['POST', 'GET'])
-def login():
-    if request.method == 'POST':
-        user = request.form['nm']
-        return redirect(url_for('success', name=user))
-    else:
-        user = request.args.get('nm')
-        return redirect(url_for('success', name=user))
-
-
-app.config["IMAGE_UPLOADS"] = ""
-
-
-@app.route("/upload-image", methods=["GET", "POST"])
-def upload_image():
+@app.route("/classify", methods=["GET", "POST"])
+def getImageClass():
     if request.method == "POST":
         if request.files:
             image = request.files["image"]
-            name = image.filename
-            # image.save(os.path.join(app.config["IMAGE_UPLOADS"], image.filename))
             return detection(image)
 
 
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=False, port=5000)
+    app.run(debug=True, use_reloader=False)
