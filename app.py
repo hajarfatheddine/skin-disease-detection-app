@@ -8,9 +8,9 @@ app = Flask(__name__)
 labelList = "model/labels.txt"
 rest_port = 5000
 eureka_client.init(eureka_server="http://localhost:8761",
-                   app_name="ml-service",
+                   app_name="ML-SERVICE",
+                   instance_host="localhost",
                    instance_port=rest_port)
-
 
 @app.route('/labels', methods=["GET"])
 def getAllLabels():
